@@ -44,6 +44,7 @@ mimetypes.add_type('image/vnd.adobe.photoshop', '.psd')
 mimetypes.add_type('video/mp4', '.mp4')
 mimetypes.add_type('video/quicktime', '.mov')
 mimetypes.add_type('video/avi', '.avi')
+mimetypes.add_type('video/x-matroska', '.mkv')
 
 mimetypes.add_type('audio/mpeg', '.mp3')
 mimetypes.add_type('audio/m4a', '.m4a')
@@ -52,6 +53,7 @@ mimetypes.add_type('audio/ogg', '.ogg')
 mimetypes.add_type('audio/flac', '.flac')
 
 mimetypes.add_type('application/x-tgsticker', '.tgs')
+mimetypes.add_type('application/octet-stream', '.mkv')
 
 USERNAME_RE = re.compile(
     r'@|(?:https?://)?(?:www\.)?(?:telegram\.(?:me|dog)|t\.me)/(@|joinchat/)?'
