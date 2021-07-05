@@ -37,6 +37,7 @@ class Button:
     to 128 characters and add the ellipsis (…) character as
     the 129.
     """
+
     def __init__(self, button, *, resize, single_use, selective):
         self.button = button
         self.resize = resize
@@ -48,12 +49,16 @@ class Button:
         """
         Returns `True` if the button belongs to an inline keyboard.
         """
-        return isinstance(button, (
-            types.KeyboardButtonCallback,
-            types.KeyboardButtonSwitchInline,
-            types.KeyboardButtonUrl,
-            types.InputKeyboardButtonUrlAuth
-        ))
+        return isinstance(
+            button,
+            (
+                types.KeyboardButtonBuy,
+                types.KeyboardButtonCallback,
+                types.KeyboardButtonSwitchInline,
+                types.KeyboardButtonUrl,
+                types.InputKeyboardButtonUrlAuth,
+            ),
+        )
 
     @staticmethod
     def inline(text, data=None):
@@ -74,17 +79,17 @@ class Button:
         button was pressed.
         """
         if not data:
-            data = text.encode('utf-8')
+            data = text.encode("utf-8")
         elif not isinstance(data, (bytes, bytearray, memoryview)):
-            data = str(data).encode('utf-8')
+            data = str(data).encode("utf-8")
 
         if len(data) > 64:
-            raise ValueError('Too many bytes for the data')
+            raise ValueError("Too many bytes for the data")
 
         return types.KeyboardButtonCallback(text, data)
 
     @staticmethod
-    def switch_inline(text, query='', same_peer=False):
+    def switch_inline(text, query="", same_peer=False):
         """
         Creates a new inline button to switch to inline query.
 
@@ -160,8 +165,20 @@ class Button:
             url=url or text,
             bot=utils.get_input_user(bot or types.InputUserSelf()),
             request_write_access=write_access,
-            fwd_text=fwd_text
+            fwd_text=fwd_text,
         )
+
+    @staticmethod
+    def buy(text):
+        """
+        Create a inline button to Buy a Product.
+
+        It can be only used with Invoice.
+        It should be the first button of the Invoice. 
+        On Not using this, Telegram will Automatically add button to it.
+        Read More - https://core.telegram.org/api/payments
+        """
+        return types.KeyboardButtonBuy(text)
 
     @classmethod
     def text(cls, text, *, resize=None, single_use=None, selective=None):
@@ -189,12 +206,15 @@ class Button:
         between a button press and the user typing and sending exactly the
         same text on their own.
         """
-        return cls(types.KeyboardButton(text),
-                   resize=resize, single_use=single_use, selective=selective)
+        return cls(
+            types.KeyboardButton(text),
+            resize=resize,
+            single_use=single_use,
+            selective=selective,
+        )
 
     @classmethod
-    def request_location(cls, text, *,
-                         resize=None, single_use=None, selective=None):
+    def request_location(cls, text, *, resize=None, single_use=None, selective=None):
         """
         Creates a new keyboard button to request the user's location on click.
 
@@ -204,12 +224,15 @@ class Button:
         to the user asking whether they want to share their location with the
         bot, and if confirmed a message with geo media will be sent.
         """
-        return cls(types.KeyboardButtonRequestGeoLocation(text),
-                   resize=resize, single_use=single_use, selective=selective)
+        return cls(
+            types.KeyboardButtonRequestGeoLocation(text),
+            resize=resize,
+            single_use=single_use,
+            selective=selective,
+        )
 
     @classmethod
-    def request_phone(cls, text, *,
-                      resize=None, single_use=None, selective=None):
+    def request_phone(cls, text, *, resize=None, single_use=None, selective=None):
         """
         Creates a new keyboard button to request the user's phone on click.
 
@@ -219,12 +242,17 @@ class Button:
         to the user asking whether they want to share their phone with the
         bot, and if confirmed a message with contact media will be sent.
         """
-        return cls(types.KeyboardButtonRequestPhone(text),
-                   resize=resize, single_use=single_use, selective=selective)
+        return cls(
+            types.KeyboardButtonRequestPhone(text),
+            resize=resize,
+            single_use=single_use,
+            selective=selective,
+        )
 
     @classmethod
-    def request_poll(cls, text, *, force_quiz=False,
-                     resize=None, single_use=None, selective=None):
+    def request_poll(
+        cls, text, *, force_quiz=False, resize=None, single_use=None, selective=None
+    ):
         """
         Creates a new keyboard button to request the user to create a poll.
 
@@ -241,8 +269,12 @@ class Button:
         When the user clicks this button, a screen letting the user create a
         poll will be shown, and if they do create one, the poll will be sent.
         """
-        return cls(types.KeyboardButtonRequestPoll(text, quiz=force_quiz),
-                   resize=resize, single_use=single_use, selective=selective)
+        return cls(
+            types.KeyboardButtonRequestPoll(text, quiz=force_quiz),
+            resize=resize,
+            single_use=single_use,
+            selective=selective,
+        )
 
     @staticmethod
     def clear():
