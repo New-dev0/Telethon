@@ -792,7 +792,7 @@ class MessageMethods:
                 buttons=buttons, clear_draft=clear_draft, silent=silent,
                 schedule=schedule, supports_streaming=supports_streaming,
                 formatting_entities=formatting_entities,
-                comment_to=comment_to
+                comment_to=comment_to, background=background
             )
 
         entity = await self.get_input_entity(entity)
@@ -815,6 +815,7 @@ class MessageMethods:
                     message.media,
                     caption=message.message,
                     silent=silent,
+                    background=background,
                     reply_to=reply_to,
                     buttons=markup,
                     formatting_entities=message.entities,
