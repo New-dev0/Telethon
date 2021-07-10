@@ -703,7 +703,7 @@ class MessageMethods:
                 notify them. Set it to `True` to alter this behaviour.
 
             background (`bool`, optional):
-                Whether the message should be forwarded in background.
+                Whether the message should be did in background.
 
             supports_streaming (`bool`, optional):
                 Whether the sent video supports streaming or not. Note that
