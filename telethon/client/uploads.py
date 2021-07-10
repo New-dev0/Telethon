@@ -251,7 +251,7 @@ class UploadMethods:
                 this behaviour.
 
             background (`bool`, optional):
-                Whether the message should be forwarded in background.
+                Whether the message should be send in background.
 
             supports_streaming (`bool`, optional):
                 Whether the sent video supports streaming or not. Note that
