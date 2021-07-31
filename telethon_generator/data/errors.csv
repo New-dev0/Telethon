@@ -133,6 +133,7 @@ FILE_PART_X_MISSING,400,Part {which} of the file is missing from storage
 FILE_REFERENCE_EMPTY,400,The file reference must exist to access the media and it cannot be empty
 FILE_REFERENCE_EXPIRED,400,The file reference has expired and is no longer valid or it belongs to self-destructing media and cannot be resent
 FILE_REFERENCE_INVALID,400,The file reference is invalid or you can't do that operation on such message
+FILE_TITLE_EMPTY,400,
 FIRSTNAME_INVALID,400,The first name is invalid
 FLOOD_TEST_PHONE_WAIT_X,420,A wait of {seconds} seconds is required in the test servers
 FLOOD_WAIT_X,420,A wait of {seconds} seconds is required
@@ -263,6 +264,7 @@ PHOTO_INVALID_DIMENSIONS,400,The photo dimensions are invalid (hint: `pip instal
 PHOTO_SAVE_FILE_INVALID,400,The photo you tried to send cannot be saved by Telegram. A reason may be that it exceeds 10MB. Try resizing it locally
 PHOTO_THUMB_URL_EMPTY,400,The URL used as a thumbnail appears to be empty or has caused another HTTP error
 PIN_RESTRICTED,400,You can't pin messages in private chats with other people
+PINNED_DIALOGS_TOO_MUCH,400,
 POLL_ANSWERS_INVALID,400,The poll did not have enough answers or had too many
 POLL_OPTION_DUPLICATE,400,A duplicate option was sent in the same poll
 POLL_OPTION_INVALID,400,A poll option used invalid data (the data may be too long)
