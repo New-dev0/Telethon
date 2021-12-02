@@ -476,18 +476,17 @@ def get_input_media(
     if isinstance(media, (types.InputFile, types.InputFileBig)):
         if is_photo:
             return types.InputMediaUploadedPhoto(file=media, ttl_seconds=ttl)
-        else:
-            attrs, mime = get_attributes(
-                media,
-                attributes=attributes,
-                force_document=force_document,
-                voice_note=voice_note,
-                video_note=video_note,
-                supports_streaming=supports_streaming
-            )
-            return types.InputMediaUploadedDocument(
-                file=media, mime_type=mime, attributes=attrs, force_file=force_document,
-                ttl_seconds=ttl)
+        attrs, mime = get_attributes(
+            media,
+            attributes=attributes,
+            force_document=force_document,
+            voice_note=voice_note,
+            video_note=video_note,
+            supports_streaming=supports_streaming
+        )
+        return types.InputMediaUploadedDocument(
+            file=media, mime_type=mime, attributes=attrs, force_file=force_document,
+            ttl_seconds=ttl)
 
     if isinstance(media, types.MessageMediaGame):
         return types.InputMediaGame(id=types.InputGameID(
@@ -635,11 +634,7 @@ def _get_metadata(file):
         else:
             stream = file
             close_stream = False
-            if getattr(file, 'seekable', None):
-                seekable = file.seekable()
-            else:
-                seekable = False
-
+            seekable = file.seekable() if getattr(file, 'seekable', None) else False
         if not seekable:
             return None
 
@@ -659,10 +654,12 @@ def _get_metadata(file):
         _log.warning('Failed to analyze %s: %s %s', file, e.__class__, e)
 
     finally:
-        if stream and close_stream:
-            stream.close()
-        elif stream and seekable:
-            stream.seek(pos)
+        if close_stream:
+            if stream:
+                stream.close()
+        elif seekable:
+            if stream:
+                stream.seek(pos)
 
 
 def get_attributes(file, *, attributes=None, mime_type=None,
@@ -913,10 +910,9 @@ def parse_phone(phone):
     """Parses the given phone, or returns `None` if it's invalid."""
     if isinstance(phone, int):
         return str(phone)
-    else:
-        phone = re.sub(r'[+()\s-]', '', str(phone))
-        if phone.isdigit():
-            return phone
+    phone = re.sub(r'[+()\s-]', '', str(phone))
+    if phone.isdigit():
+        return phone
 
 
 def parse_username(username):
@@ -1051,11 +1047,10 @@ def resolve_id(marked_id):
         return marked_id, types.PeerUser
 
     marked_id = -marked_id
-    if marked_id > 1000000000000:
-        marked_id -= 1000000000000
-        return marked_id, types.PeerChannel
-    else:
+    if marked_id <= 1000000000000:
         return marked_id, types.PeerChat
+    marked_id -= 1000000000000
+    return marked_id, types.PeerChannel
 
 
 def _rle_decode(data):
@@ -1158,19 +1153,18 @@ def resolve_bot_file_id(file_id):
             return None
 
         attributes = []
-        if file_type == 3 or file_type == 9:
+        if file_type in [3, 9]:
             attributes.append(types.DocumentAttributeAudio(
                 duration=0,
                 voice=file_type == 3
             ))
-        elif file_type == 4 or file_type == 13:
+        elif file_type in [4, 13]:
             attributes.append(types.DocumentAttributeVideo(
                 duration=0,
                 w=0,
                 h=0,
                 round_message=file_type == 13
             ))
-        # elif file_type == 5:  # other, cannot know which
         elif file_type == 8:
             attributes.append(types.DocumentAttributeSticker(
                 alt='',
@@ -1304,8 +1298,6 @@ def resolve_invite_link(link):
             return (0, *struct.unpack('>LQ', payload))
         elif len(payload) == 16:
             return struct.unpack('>LLQ', payload)
-        else:
-            pass
     except (struct.error, TypeError):
         pass
     return None, None, None

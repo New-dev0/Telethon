@@ -443,11 +443,7 @@ class DialogMethods:
         """
         # If we have enough information (`Dialog.delete` gives it to us),
         # then we know we don't have to kick ourselves in deactivated chats.
-        if isinstance(entity, types.Chat):
-            deactivated = entity.deactivated
-        else:
-            deactivated = False
-
+        deactivated = entity.deactivated if isinstance(entity, types.Chat) else False
         entity = await self.get_input_entity(entity)
         ty = helpers._entity_type(entity)
         if ty == helpers._EntityType.CHANNEL:
