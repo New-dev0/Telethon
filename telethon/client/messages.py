@@ -629,6 +629,7 @@ class MessageMethods:
             album: bool = False,
             allow_cache: bool = False,
             background: bool = None,
+            noforwards: bool = False,
             supports_streaming: bool = False,
             schedule: 'hints.DateLike' = None,
             comment_to: 'typing.Union[int, types.Message]' = None
@@ -813,7 +814,7 @@ class MessageMethods:
                 schedule=schedule, supports_streaming=supports_streaming,
                 formatting_entities=formatting_entities,
                 comment_to=comment_to, background=background, album=album,
-                allow_cache=allow_cache, send_as=send_as
+                allow_cache=allow_cache, send_as=send_as, noforwards=noforwards
             )
 
         entity = await self.get_input_entity(entity)
@@ -841,7 +842,7 @@ class MessageMethods:
                     buttons=markup,
                     formatting_entities=message.entities,
                     schedule=schedule,
-                    send_as=send_as
+                    send_as=send_as, noforwards=noforwards
                 )
 
             request = functions.messages.SendMessageRequest(
@@ -857,6 +858,7 @@ class MessageMethods:
                     message.media, types.MessageMediaWebPage),
                 schedule_date=schedule, 
                 send_as=send_as,
+                noforwards=noforwards
             )
             message = message.message
         else:
@@ -881,7 +883,7 @@ class MessageMethods:
                 background=background,
                 reply_markup=self.build_reply_markup(buttons),
                 schedule_date=schedule,
-                send_as=send_as
+                send_as=send_as, noforwards=noforwards
             )
 
         result = await self(request)
