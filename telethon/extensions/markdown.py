@@ -16,7 +16,8 @@ from ..tl.types import (
     MessageEntityTextUrl,
     MessageEntityMentionName,
     MessageEntityStrike,
-    MessageEntityUnderline
+    MessageEntityUnderline,
+    MessageEntitySpoiler
 )
 
 DEFAULT_DELIMITERS = {
