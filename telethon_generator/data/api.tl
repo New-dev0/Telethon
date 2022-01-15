@@ -1751,3 +1751,6 @@ stats.getMessagePublicForwards#5630281b channel:InputChannel msg_id:int offset_r
 stats.getMessageStats#b6e0a3f5 flags:# dark:flags.0?true channel:InputChannel msg_id:int = stats.MessageStats;
 
 // LAYER 136
+nel:InputChannel msg_id:int = stats.MessageStats;
+
+// LAYER 137
