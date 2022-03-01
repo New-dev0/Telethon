@@ -1757,3 +1757,16 @@ stats.getMessagePublicForwards#5630281b channel:InputChannel msg_id:int offset_r
 stats.getMessageStats#b6e0a3f5 flags:# dark:flags.0?true channel:InputChannel msg_id:int = stats.MessageStats;
 
 // LAYER 138
+ngpack.getLanguages#42c6978f lang_pack:string = Vector<LangPackLanguage>;
+langpack.getLanguage#6a596502 lang_pack:string lang_code:string = LangPackLanguage;
+
+folders.editPeerFolders#6847d0ab folder_peers:Vector<InputFolderPeer> = Updates;
+folders.deleteFolder#1c295881 folder_id:int = Updates;
+
+stats.getBroadcastStats#ab42441a flags:# dark:flags.0?true channel:InputChannel = stats.BroadcastStats;
+stats.loadAsyncGraph#621d5fa0 flags:# token:string x:flags.0?long = StatsGraph;
+stats.getMegagroupStats#dcdf8607 flags:# dark:flags.0?true channel:InputChannel = stats.MegagroupStats;
+stats.getMessagePublicForwards#5630281b channel:InputChannel msg_id:int offset_rate:int offset_peer:InputPeer offset_id:int limit:int = messages.Messages;
+stats.getMessageStats#b6e0a3f5 flags:# dark:flags.0?true channel:InputChannel msg_id:int = stats.MessageStats;
+
+// LAYER 139
