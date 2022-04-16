@@ -42,8 +42,6 @@ class User:
         self.last_name = last_name
         self.username = username
         self.phone = phone
-        if self.is_self and self.phone:
-            self.phone = "**********"
         self.photo = photo
         self.status = status
         self.bot_info_version = bot_info_version
