@@ -94,7 +94,7 @@ def get_display_name(entity):
     """
     if isinstance(entity, types.User):
         if entity.last_name and entity.first_name:
-            return '{} {}'.format(entity.first_name, entity.last_name)
+            return f'{entity.first_name} {entity.last_name}'
         elif entity.first_name:
             return entity.first_name
         elif entity.last_name:
@@ -135,8 +135,9 @@ def get_extension(media):
 
 
 def _raise_cast_fail(entity, target):
-    raise TypeError('Cannot cast {} to any kind of {}.'.format(
-        type(entity).__name__, target))
+    raise TypeError(
+        f'Cannot cast {type(entity).__name__} to any kind of {target}.'
+    )
 
 
 def get_input_peer(entity, allow_self=True, check_hash=True):
@@ -476,18 +477,17 @@ def get_input_media(
     if isinstance(media, (types.InputFile, types.InputFileBig)):
         if is_photo:
             return types.InputMediaUploadedPhoto(file=media, ttl_seconds=ttl)
-        else:
-            attrs, mime = get_attributes(
-                media,
-                attributes=attributes,
-                force_document=force_document,
-                voice_note=voice_note,
-                video_note=video_note,
-                supports_streaming=supports_streaming
-            )
-            return types.InputMediaUploadedDocument(
-                file=media, mime_type=mime, attributes=attrs, force_file=force_document,
-                ttl_seconds=ttl)
+        attrs, mime = get_attributes(
+            media,
+            attributes=attributes,
+            force_document=force_document,
+            voice_note=voice_note,
+            video_note=video_note,
+            supports_streaming=supports_streaming
+        )
+        return types.InputMediaUploadedDocument(
+            file=media, mime_type=mime, attributes=attrs, force_file=force_document,
+            ttl_seconds=ttl)
 
     if isinstance(media, types.MessageMediaGame):
         return types.InputMediaGame(id=types.InputGameID(
@@ -611,7 +611,7 @@ def get_message_id(message):
     except AttributeError:
         pass
 
-    raise TypeError('Invalid message type: {}'.format(type(message)))
+    raise TypeError(f'Invalid message type: {type(message)}')
 
 
 def _get_metadata(file):
@@ -635,23 +635,19 @@ def _get_metadata(file):
         else:
             stream = file
             close_stream = False
-            if getattr(file, 'seekable', None):
-                seekable = file.seekable()
-            else:
-                seekable = False
-
+            seekable = file.seekable() if getattr(file, 'seekable', None) else False
         if not seekable:
             return None
 
         pos = stream.tell()
         filename = getattr(file, 'name', '')
 
-        parser = hachoir.parser.guess.guessParser(hachoir.stream.InputIOStream(
-            stream,
-            source='file:' + filename,
-            tags=[],
-            filename=filename
-        ))
+        parser = hachoir.parser.guess.guessParser(
+            hachoir.stream.InputIOStream(
+                stream, source=f'file:{filename}', tags=[], filename=filename
+            )
+        )
+
 
         return hachoir.metadata.extractMetadata(parser)
 
@@ -659,10 +655,12 @@ def _get_metadata(file):
         _log.warning('Failed to analyze %s: %s %s', file, e.__class__, e)
 
     finally:
-        if stream and close_stream:
-            stream.close()
-        elif stream and seekable:
-            stream.seek(pos)
+        if close_stream:
+            if stream:
+                stream.close()
+        elif seekable:
+            if stream:
+                stream.seek(pos)
 
 
 def get_attributes(file, *, attributes=None, mime_type=None,
@@ -681,8 +679,7 @@ def get_attributes(file, *, attributes=None, mime_type=None,
         types.DocumentAttributeFilename(os.path.basename(name))}
 
     if is_audio(file):
-        m = _get_metadata(file)
-        if m:
+        if m := _get_metadata(file):
             if m.has('author'):
                 performer = m.get('author')
             elif m.has('artist'):
@@ -700,8 +697,7 @@ def get_attributes(file, *, attributes=None, mime_type=None,
                 )
 
     if not force_document and is_video(file):
-        m = _get_metadata(file)
-        if m:
+        if m := _get_metadata(file):
             doc = types.DocumentAttributeVideo(
                 round_message=video_note,
                 w=m.get('width') if m.has('width') else 1,
@@ -712,13 +708,8 @@ def get_attributes(file, *, attributes=None, mime_type=None,
             )
         elif thumb:
             t_m = _get_metadata(thumb)
-            width = 1
-            height = 1
-            if t_m and t_m.has("width"):
-                width = t_m.get("width")
-            if t_m and t_m.has("height"):
-                height = t_m.get("height")
-
+            width = t_m.get("width") if t_m and t_m.has("width") else 1
+            height = t_m.get("height") if t_m and t_m.has("height") else 1
             doc = types.DocumentAttributeVideo(
                 0, width, height, round_message=video_note,
                 supports_streaming=supports_streaming)
@@ -840,10 +831,10 @@ def _get_extension(file):
         return file.suffix
     elif isinstance(file, bytes):
         kind = imghdr.what(io.BytesIO(file))
-        return ('.' + kind) if kind else ''
+        return f'.{kind}' if kind else ''
     elif isinstance(file, io.IOBase) and not isinstance(file, io.TextIOBase) and file.seekable():
         kind = imghdr.what(file)
-        return ('.' + kind) if kind is not None else ''
+        return f'.{kind}' if kind is not None else ''
     elif getattr(file, 'name', None):
         # Note: ``file.name`` works for :tl:`InputFile` and some `IOBase`
         return _get_extension(file.name)
@@ -856,8 +847,9 @@ def is_image(file):
     """
     Returns `True` if the file extension looks like an image file to Telegram.
     """
-    match = re.match(r'\.(png|jpe?g)', _get_extension(file), re.IGNORECASE)
-    if match:
+    if match := re.match(
+        r'\.(png|jpe?g)', _get_extension(file), re.IGNORECASE
+    ):
         return True
     else:
         return isinstance(resolve_bot_file_id(file), types.Photo)
@@ -872,30 +864,30 @@ def is_gif(file):
 
 def is_audio(file):
     """Returns `True` if the file has an audio mime type."""
-    ext = _get_extension(file)
-    if not ext:
-        metadata = _get_metadata(file)
-        if metadata and metadata.has('mime_type'):
-            return metadata.get('mime_type').startswith('audio/')
-        else:
-            return False
-    else:
-        file = 'a' + ext
+    if ext := _get_extension(file):
+        file = f'a{ext}'
         return (mimetypes.guess_type(file)[0] or '').startswith('audio/')
+    else:
+        metadata = _get_metadata(file)
+        return (
+            metadata.get('mime_type').startswith('audio/')
+            if metadata and metadata.has('mime_type')
+            else False
+        )
 
 
 def is_video(file):
     """Returns `True` if the file has a video mime type."""
-    ext = _get_extension(file)
-    if not ext:
-        metadata = _get_metadata(file)
-        if metadata and metadata.has('mime_type'):
-            return metadata.get('mime_type').startswith('video/')
-        else:
-            return False
-    else:
-        file = 'a' + ext
+    if ext := _get_extension(file):
+        file = f'a{ext}'
         return (mimetypes.guess_type(file)[0] or '').startswith('video/')
+    else:
+        metadata = _get_metadata(file)
+        return (
+            metadata.get('mime_type').startswith('video/')
+            if metadata and metadata.has('mime_type')
+            else False
+        )
 
 
 def is_list_like(obj):
@@ -913,10 +905,9 @@ def parse_phone(phone):
     """Parses the given phone, or returns `None` if it's invalid."""
     if isinstance(phone, int):
         return str(phone)
-    else:
-        phone = re.sub(r'[+()\s-]', '', str(phone))
-        if phone.isdigit():
-            return phone
+    phone = re.sub(r'[+()\s-]', '', str(phone))
+    if phone.isdigit():
+        return phone
 
 
 def parse_username(username):
@@ -929,8 +920,7 @@ def parse_username(username):
     Returns ``(None, False)`` if the ``username`` or link is not valid.
     """
     username = username.strip()
-    m = USERNAME_RE.match(username) or TG_JOIN_RE.match(username)
-    if m:
+    if m := USERNAME_RE.match(username) or TG_JOIN_RE.match(username):
         username = username[m.end():]
         is_invite = bool(m.group(1))
         if is_invite:
@@ -1051,11 +1041,10 @@ def resolve_id(marked_id):
         return marked_id, types.PeerUser
 
     marked_id = -marked_id
-    if marked_id > 1000000000000:
-        marked_id -= 1000000000000
-        return marked_id, types.PeerChannel
-    else:
+    if marked_id <= 1000000000000:
         return marked_id, types.PeerChat
+    marked_id -= 1000000000000
+    return marked_id, types.PeerChannel
 
 
 def _rle_decode(data):
@@ -1158,19 +1147,18 @@ def resolve_bot_file_id(file_id):
             return None
 
         attributes = []
-        if file_type == 3 or file_type == 9:
+        if file_type in [3, 9]:
             attributes.append(types.DocumentAttributeAudio(
                 duration=0,
                 voice=file_type == 3
             ))
-        elif file_type == 4 or file_type == 13:
+        elif file_type in [4, 13]:
             attributes.append(types.DocumentAttributeVideo(
                 duration=0,
                 w=0,
                 h=0,
                 round_message=file_type == 13
             ))
-        # elif file_type == 5:  # other, cannot know which
         elif file_type == 8:
             attributes.append(types.DocumentAttributeSticker(
                 alt='',
@@ -1190,7 +1178,11 @@ def resolve_bot_file_id(file_id):
             attributes=attributes,
             file_reference=b''
         )
-    elif (version == 2 and len(data) == 44) or (version == 4 and len(data) in (49, 77)):
+    elif (
+        (version == 2 and len(data) == 44)
+        or version == 4
+        and len(data) in {49, 77}
+    ):
         if version == 2:
             (file_type, dc_id, media_id, access_hash,
                 volume_id, secret, local_id) = struct.unpack('<iiqqqqi', data)
@@ -1293,7 +1285,7 @@ def resolve_invite_link(link):
 
     # Little known fact, but invite links with a
     # hex-string of bytes instead of base64 also works.
-    if re.match(r'[a-fA-F\d]+', link_hash) and len(link_hash) in (24, 32):
+    if re.match(r'[a-fA-F\d]+', link_hash) and len(link_hash) in {24, 32}:
         payload = bytes.fromhex(link_hash)
     else:
         payload = _decode_telegram_base64(link_hash)
@@ -1303,8 +1295,6 @@ def resolve_invite_link(link):
             return (0, *struct.unpack('>LQ', payload))
         elif len(payload) == 16:
             return struct.unpack('>LLQ', payload)
-        else:
-            pass
     except (struct.error, TypeError):
         pass
     return None, None, None
