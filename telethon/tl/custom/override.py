@@ -11,7 +11,7 @@ def override(func):
         The overridden function.
     """
 
-    @functools.wraps(func)
+    @wraps(func)
     async def wrapper(*args, **kwargs):
         result = await func(*args, **kwargs)
         return result
